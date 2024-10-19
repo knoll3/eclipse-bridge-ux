@@ -116,23 +116,23 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               },
               onAuthFlowOpen: () => {
                 const depositBox = document.getElementsByClassName("deposit-container")[0] as HTMLElement;
-                depositBox.style.transform = "scale(0.9)";
+                if (depositBox) depositBox.style.transform = "scale(0.9)";
 
                 const submitButton = document.getElementsByClassName("submit-button")[0] as HTMLElement;
                 if (submitButton) submitButton.className += " disabled";
 
                 const mainContent = document.getElementById("main-content") as HTMLElement;
-                mainContent.style.filter = "blur(3px)";
+                if (mainContent) mainContent.style.filter = "blur(3px)";
               },
               onAuthFlowClose: () => {
                 const depositBox = document.getElementsByClassName("deposit-container")[0] as HTMLElement;
-                depositBox.style.transform = "scale(1)";
+                if (depositBox) depositBox.style.transform = "scale(1)";
 
                 const submitButton = document.getElementsByClassName("submit-button")[0] as HTMLElement;
                 if (submitButton) submitButton.className = submitButton.className.replace("disabled", "");
 
                 const mainContent = document.getElementById("main-content") as HTMLElement;
-                mainContent.style.filter = "";
+                if (mainContent) mainContent.style.filter = "";
               },
             },
             walletsFilter: (wallets) =>
