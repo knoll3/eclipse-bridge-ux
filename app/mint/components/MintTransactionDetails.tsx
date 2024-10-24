@@ -98,7 +98,7 @@ export const MintTransactionDetails: React.FC<TransactionDetailsProps> = ({
               >
                 {step.title}
               </div>
-              {step.link && (
+              {step.link && tx && (
                 <div className="gray-text">
                   <a href={step.link} target="_blank">
                     View Txn

@@ -258,7 +258,7 @@ function Mint() {
         abi: WarpRouteContract.abi as Abi,
         address: warpRouteContractAddress,
         functionName: "depositAndBridge",
-        args: [depositAsset, depositAmountAsBigInt, minimumMint, hyperlaneIdForEclipse, recipientBytes32],
+        args: [depositAsset, depositAmountAsBigInt, minimumMint, recipientBytes32],
         account: evmAddress,
       });
 
