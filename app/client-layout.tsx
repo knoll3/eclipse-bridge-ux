@@ -1,12 +1,17 @@
-"use client";
+'use client';
 import "./globals.css";
-import { DynamicContextProvider, EthereumWalletConnectors, SolanaWalletConnectors } from "@/lib/dynamic";
+import {
+  DynamicContextProvider,
+  EthereumWalletConnectors,
+  SolanaWalletConnectors,
+} from "@/lib/dynamic";
 import { Providers } from "@/app/providers";
-import { IBM_Plex_Sans } from "next/font/google";
+import { IBM_Plex_Sans } from 'next/font/google';
+import { useState, useEffect } from "react"
 
 const ibmPlexSans = IBM_Plex_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
 });
 
 // TODO: maybe we can read it from a file
@@ -73,95 +78,102 @@ const cssOverrides = `
   .step__icon--done {
       background-color: #4779ff!important;
   }
-`;
+`
 
 // override this on sepolia
-const evmNetworks = [
-  {
-    blockExplorerUrls: ["https://sepolia.etherscan.io/"],
+const evmNetworks = [{
+    blockExplorerUrls: ['https://sepolia.etherscan.io/'],
     chainId: 11155111,
-    chainName: "Ethereum Sepolia",
-    iconUrls: ["https://app.dynamic.xyz/assets/networks/eth.svg"],
-    name: "Ethereum",
+    chainName: 'Ethereum Sepolia',
+    iconUrls: ['https://app.dynamic.xyz/assets/networks/eth.svg'],
+    name: 'Ethereum',
     nativeCurrency: {
       decimals: 18,
-      name: "Ether",
-      symbol: "ETH",
+      name: 'Ether',
+      symbol: 'ETH',
     },
     networkId: 11155111,
-    rpcUrls: ["https://sepolia.drpc.org"],
-    vanityName: "Sepolia",
-  },
-];
-const eclipseWallets = ["backpacksol", "nightlysol"];
+    rpcUrls: ['https://sepolia.drpc.org'],
+    vanityName: 'Sepolia',
+}];
+const eclipseWallets = ["backpacksol", "nightlysol"]
 
-export default function ClientLayout({ children }: { children: React.ReactNode }) {
+export default function ClientLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkWindowSize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkWindowSize();
+    window.addEventListener('resize', checkWindowSize); 
+
+    return () => window.removeEventListener('resize', checkWindowSize);
+  }, []);
   // TODO
   return (
     <html lang="en">
-      <body className={ibmPlexSans.className}>
-        <DynamicContextProvider
-          settings={{
-            events: {
+      <DynamicContextProvider
+        settings={{
+          events: {
               onWalletRemoved: (args) => {
-                if (args.wallet.chain === "EVM") {
+                if (args.wallet.chain === "EVM") { 
                   const client: any = args.wallet.connector.getWalletClient();
-                  client.request({ method: "wallet_revokePermissions", params: [{ eth_accounts: {} }] });
-                }
+                  client.request({ "method": "wallet_revokePermissions", "params": [{"eth_accounts": {}}]});
+                } 
               },
               onAuthFlowOpen: () => {
                 const depositBox = document.getElementsByClassName("deposit-container")[0] as HTMLElement;
-                if (depositBox) depositBox.style.transform = "scale(0.9)";
+                depositBox.style.transform = "scale(0.9)";
 
                 const submitButton = document.getElementsByClassName("submit-button")[0] as HTMLElement;
                 if (submitButton) submitButton.className += " disabled";
 
                 const mainContent = document.getElementById("main-content") as HTMLElement;
-                if (mainContent) mainContent.style.filter = "blur(3px)";
-              },
-              onAuthFlowClose: () => {
+                mainContent.style.filter = "blur(3px)"
+            },
+            onAuthFlowClose: () => {
                 const depositBox = document.getElementsByClassName("deposit-container")[0] as HTMLElement;
-                if (depositBox) depositBox.style.transform = "scale(1)";
+                depositBox.style.transform = "scale(1)";
 
                 const submitButton = document.getElementsByClassName("submit-button")[0] as HTMLElement;
                 if (submitButton) submitButton.className = submitButton.className.replace("disabled", "");
 
                 const mainContent = document.getElementById("main-content") as HTMLElement;
-                if (mainContent) mainContent.style.filter = "";
-              },
-            },
-            walletsFilter: (wallets) =>
-              wallets.filter(
-                (w) => w.walletConnector.supportedChains.includes("EVM") || eclipseWallets.includes(w.key)
-              ),
-            environmentId: process.env.NEXT_PUBLIC_ENVIRONMENT_ID || "",
-            walletConnectors: [EthereumWalletConnectors, SolanaWalletConnectors],
-            initialAuthenticationMode: "connect-only",
-            displaySiweStatement: true,
-            privacyPolicyUrl: "https://www.eclipse.xyz/privacy-policy",
-            termsOfServiceUrl: "https://www.eclipse.xyz/terms",
-            overrides: {
-              ...(process.env.NEXT_PUBLIC_CURRENT_CHAIN === "sepolia" && { evmNetworks: evmNetworks }),
-              chainDisplayValues: {
-                solana: {
-                  displayName: "Eclipse",
-                },
-              },
-            },
-            cssOverrides,
-            bridgeChains: [
-              {
-                chain: "EVM",
-              },
-              {
-                chain: "SOL",
-              },
-            ],
-          }}
-        >
-          <Providers>{children}</Providers>
-        </DynamicContextProvider>
-      </body>
+                mainContent.style.filter = ""
+            }
+          },
+          walletsFilter: (wallets) => wallets.filter((w) => w.walletConnector.supportedChains.includes("EVM") || eclipseWallets.includes(w.key)),
+          mobileExperience: "redirect", 
+          environmentId: process.env.NEXT_PUBLIC_ENVIRONMENT_ID || '',
+          walletConnectors: [EthereumWalletConnectors, SolanaWalletConnectors],
+          initialAuthenticationMode: 'connect-only',
+          displaySiweStatement: true,
+          privacyPolicyUrl: "https://www.eclipse.xyz/privacy-policy",
+          termsOfServiceUrl: "https://www.eclipse.xyz/terms",
+          overrides: {
+            ...(process.env.NEXT_PUBLIC_CURRENT_CHAIN === 'sepolia' && { evmNetworks: evmNetworks }),
+            chainDisplayValues: {
+              solana: {
+                 displayName: 'Eclipse'
+              }
+           }
+          },
+          cssOverrides,
+          bridgeChains: [
+            ...(isMobile ? [] : [{ chain: "EVM"}, { chain: "SOL" }]) as [{ chain: "EVM"}, { chain: "SOL"}]
+          ], 
+        }}
+      >
+        <Providers>
+            <body className={ibmPlexSans.className}>{children}</body>
+        </Providers>
+      </DynamicContextProvider>
     </html>
   );
 }
