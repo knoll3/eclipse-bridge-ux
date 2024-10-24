@@ -16,3 +16,6 @@ export const tokenOptions: TokenOption[] = [
   { value: "0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee", label: "weETH", imageSrc: "/token-weeth.svg" },
   { value: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", label: "WETH", imageSrc: "/token-weth.svg" },
 ];
+
+// tETH token address on Eclipse
+export const tEthTokenAddress = "GU7NS9xCwgNPiAdJ69iusFrRfawjDDPjeMBovhV1d4kn";

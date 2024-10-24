@@ -692,3 +692,26 @@ input::placeholder {
 .mint-button-disabled:active {
   filter: brightness(50%);
 }
+
+.token-balance {
+  font-weight: 500;
+  filter: brightness(30%);
+}
+
+.max-button {
+  color: #a1fea0;
+  filter: brightness(50%);
+  font-weight: 500;
+}
+
+.max-button:hover {
+  color: #a1fea0;
+  filter: brightness(40%);
+  text-decoration: underline;
+}
+
+.max-button:active {
+  color: #a1fea0;
+  filter: brightness(30%);
+  text-decoration: underline;
+}

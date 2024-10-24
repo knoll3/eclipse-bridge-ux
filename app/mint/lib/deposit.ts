@@ -1,11 +1,9 @@
-import { Abi, createPublicClient, createWalletClient, custom, erc20Abi, http, PublicClient, WalletClient } from "viem";
-import { mainnet, sepolia } from "viem/chains";
-import TellerWithMultiAssetSupport from "../abis/TellerWithMultiAssetSupport.json";
+import { Abi, PublicClient, WalletClient } from "viem";
+import WarpRouteContract from "../abis/WarpRouteContract.json";
+import { hyperlaneIdForEclipse } from "../constants";
+import { warpRouteContractAddress } from "../constants/contracts";
 import { calculateMinimumMint } from "../utils/calculateMinimumMint";
 import { getRateInQuote } from "./getRateInQuote";
-import { accountantAddress, boringVaultAddress, tellerAddress } from "../constants/contracts";
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Deposits a specified amount of an asset using the Teller contract.
@@ -25,9 +23,11 @@ export async function deposit(
   {
     depositAsset,
     depositAmount,
+    svmAddress,
   }: {
     depositAsset: `0x${string}`;
     depositAmount: bigint;
+    svmAddress: string;
   },
   {
     walletClient,
@@ -47,65 +47,22 @@ export async function deposit(
     }
 
     ////////////////////////////////
-    // Check Allowance
-    ////////////////////////////////
-    console.log("checking allowance...");
-    const allowanceAsBigInt = await publicClient.readContract({
-      abi: erc20Abi,
-      address: depositAsset,
-      functionName: "allowance",
-      args: [userAddress, boringVaultAddress],
-    });
-
-    ////////////////////////////////
-    // Approve
-    ////////////////////////////////
-    if (depositAmount > allowanceAsBigInt) {
-      console.log("approving...");
-      // Simulate the transaction to catch any errors
-      const { request: approvalRequest } = await publicClient.simulateContract({
-        abi: erc20Abi,
-        address: depositAsset,
-        functionName: "approve",
-        args: [boringVaultAddress, depositAmount],
-        account: userAddress,
-      });
-
-      // Execute the transaction
-      const approvalTxHash = await walletClient.writeContract(approvalRequest);
-
-      // Wait for the approval transaction to be confirmed
-      await publicClient.waitForTransactionReceipt({
-        hash: approvalTxHash,
-        timeout: 60_000,
-        confirmations: 1,
-        pollingInterval: 10_000,
-        retryCount: 5,
-        retryDelay: 5_000,
-      });
-    }
-
-    ////////////////////////////////
     // Calculate Minimum Mint
     ////////////////////////////////
-    console.log("calculating minimum mint...");
     const rate = await getRateInQuote({ quote: depositAsset }, { publicClient });
     const minimumMint = calculateMinimumMint(depositAmount, rate);
 
     ////////////////////////////////
     // Deposit
     ////////////////////////////////
-    console.log("depositing...");
     // Simulate the transaction to catch any errors
     const { request: depositRequest } = await publicClient.simulateContract({
-      abi: TellerWithMultiAssetSupport.abi as Abi,
-      address: tellerAddress,
-      functionName: "deposit",
-      args: [depositAsset, depositAmount, minimumMint],
+      abi: WarpRouteContract.abi as Abi,
+      address: warpRouteContractAddress,
+      functionName: "depositAndBridge",
+      args: [depositAsset, depositAmount, minimumMint, hyperlaneIdForEclipse, svmAddress],
       account: userAddress,
     });
-
-    console.log("simulate passed");
 
     // Execute the transaction
     const depositTxHash = await walletClient.writeContract(depositRequest);
@@ -120,11 +77,7 @@ export async function deposit(
       retryDelay: 5_000,
     });
 
-    console.log("deposit complete!");
-    console.log("depositTxHash", depositTxHash);
-
     return depositTxHash;
-    // return "0x0";
   } catch (error) {
     console.error(error);
   }

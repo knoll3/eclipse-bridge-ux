@@ -7,15 +7,15 @@ import { TransactionProvider } from "../components/TransactionPool";
 import { EthereumDataContext, WalletClientContext } from "../context";
 import { useWalletClient } from "../hooks";
 import Mint from "./components/Mint";
-import { MintProvider } from "./contexts/MintContext";
 
 function MintPage() {
+  const { gasPrice, ethPrice } = useEthereumData();
   const walletClient = useWalletClient();
 
   return (
-    <WalletClientContext.Provider value={walletClient}>
-      <TransactionProvider>
-        <MintProvider>
+    <EthereumDataContext.Provider value={[gasPrice, ethPrice]}>
+      <WalletClientContext.Provider value={walletClient}>
+        <TransactionProvider>
           <SkeletonTheme baseColor="#FFFFFF0A" highlightColor="#FFFFFF26">
             <div
               className="flex items-center text-white flex flex-col justify-between"
@@ -33,9 +33,9 @@ function MintPage() {
               <Footer />
             </div>
           </SkeletonTheme>
-        </MintProvider>
-      </TransactionProvider>
-    </WalletClientContext.Provider>
+        </TransactionProvider>
+      </WalletClientContext.Provider>
+    </EthereumDataContext.Provider>
   );
 }
 
