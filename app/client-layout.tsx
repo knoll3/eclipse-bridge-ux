@@ -2,12 +2,7 @@
 import "./globals.css";
 import { DynamicContextProvider, EthereumWalletConnectors, SolanaWalletConnectors } from "@/lib/dynamic";
 import { Providers } from "@/app/providers";
-<<<<<<< HEAD
-import { IBM_Plex_Sans } from 'next/font/google';
-import { useState, useEffect } from "react"
-=======
 import { IBM_Plex_Sans } from "next/font/google";
->>>>>>> a68c215 (Fix div body error)
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
